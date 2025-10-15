@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Legal Document Analyzer{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-icon">⚖️</div>
+        <h1>Legal Document Analyzer</h1>
+        <p class="hero-subtitle">AI-Powered Strategic Case Preparation Tool</p>
+    </div>
+
+    <!-- Upload Form -->
+    <div class="upload-card">
+        <h2>Upload Legal Document</h2>
+        <p class="upload-description">Upload a PDF legal brief to extract key arguments and strategic insights</p>
+
+        <form action="{{ url_for('analyze') }}" method="post" enctype="multipart/form-data" class="upload-form">
+            <div class="file-upload-area">
+                <input type="file" name="file" id="file" accept=".pdf" required>
+                <label for="file" class="file-upload-label">
+                    <div class="upload-icon">📄</div>
+                    <div class="upload-text">
+                        <strong>Click to upload</strong> or drag and drop
+                        <span class="upload-hint">PDF files only (Max 50MB)</span>
+                    </div>
+                </label>
+            </div>
+
+            <div class="query-input-group">
+                <label for="query">Analysis Query (Optional)</label>
+                <input 
+                    type="text" 
+                    name="query" 
+                    id="query" 
+                    class="query-input"
+                    placeholder="e.g., key legal arguments and important points"
+                    value="key legal arguments and important points"
+                >
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-large">
+                <span>🔍 Analyze Document</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Info Section -->
+    <div class="info-section">
+        <div class="info-card">
+            <div class="info-icon">🎯</div>
+            <h3>Comprehensive Analysis</h3>
+            <p>Extracts top 10 arguments with both plaintiff and defendant perspectives</p>
+        </div>
+        <div class="info-card">
+            <div class="info-icon">📊</div>
+            <h3>Smart Classification</h3>
+            <p>Categorizes arguments by statutory, regulatory, constitutional, and case law</p>
+        </div>
+        <div class="info-card">
+            <div class="info-icon">⚡</div>
+            <h3>Precise Citations</h3>
+            <p>Provides page numbers, quotes, and specific legal concept references</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // File upload preview
+    const fileInput = document.getElementById('file');
+    const fileLabel = document.querySelector('.file-upload-label');
+    
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files.length > 0) {
+            const fileName = this.files[0].name;
+            const fileSize = (this.files[0].size / (1024 * 1024)).toFixed(2);
+            fileLabel.innerHTML = `
+                <div class="upload-icon">✅</div>
+                <div class="upload-text">
+                    <strong>${fileName}</strong>
+                    <span class="upload-hint">${fileSize} MB</span>
+                </div>
+            `;
+            fileLabel.style.borderColor = 'var(--success)';
+            fileLabel.style.background = '#f0fdf4';
+        }
+    });
+</script>
+{% endblock %}

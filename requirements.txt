@@ -1,0 +1,29 @@
+# Core
+flask==3.0.0
+python-dotenv==1.0.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# LangChain
+langchain==0.1.12
+langchain-community==0.0.28
+langchain-groq==0.0.1
+langchain-huggingface==0.0.1
+
+# Document Processing
+pypdf==3.17.4
+
+# Vector Store
+qdrant-client==1.7.0
+
+# Utilities
+structlog==24.1.0
+tenacity==8.2.3
+rapidfuzz==3.5.2
+numpy==1.26.2
+requests==2.31.0
+
+redis==5.0.1
+python-json-logger==2.0.7
+pdfplumber
+uvicorn

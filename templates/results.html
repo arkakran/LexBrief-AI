@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results - Legal Document Analyzer{% endblock %}
+
+{% block content %}
+<div class="results-container">
+    <!-- Header Section -->
+    <div class="results-header">
+        <h1>📊 Document Analysis Complete</h1>
+        <p class="subtitle">Strategic Legal Preparation Report</p>
+    </div>
+
+    <!-- Document Info Card -->
+    <div class="document-info-card">
+        <div class="info-row">
+            <div class="info-item">
+                <span class="info-label">Document</span>
+                <span class="info-value">{{ result.case_name or result.document_type or 'Legal Brief' }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Total Pages</span>
+                <span class="info-value">{{ result.total_pages }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Chunks Processed</span>
+                <span class="info-value">{{ result.total_chunks }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Processing Time</span>
+                <span class="info-value">{{ "%.2f"|format(result.processing_time) }}s</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Focus -->
+    {% if query %}
+    <div class="analysis-focus">
+        <strong>Analysis Focus:</strong> {{ query }}
+    </div>
+    {% endif %}
+
+    <!-- Key Points Section -->
+    <div class="key-points-header">
+        <h2>🎯 Key Legal Arguments ({{ result.key_points|length }})</h2>
+    </div>
+
+    <!-- Key Points List -->
+    <div class="key-points-list">
+        {% for point in result.key_points %}
+        <div class="point-card">
+            <!-- Point Number -->
+            <div class="point-number">{{ loop.index }}</div>
+            
+            <!-- Point Content -->
+            <div class="point-content">
+                <!-- Badges Row -->
+                <div class="badges-row">
+                    <!-- Importance Badge -->
+                    {% if point.importance == 'critical' %}
+                    <span class="badge badge-importance importance-critical">Importance: CRITICAL</span>
+                    {% elif point.importance == 'high' %}
+                    <span class="badge badge-importance importance-high">Importance: HIGH</span>
+                    {% elif point.importance == 'medium' %}
+                    <span class="badge badge-importance importance-medium">Importance: MEDIUM</span>
+                    {% else %}
+                    <span class="badge badge-importance importance-low">Importance: LOW</span>
+                    {% endif %}
+
+                    <!-- Stance Badge -->
+                    {% if point.stance == 'plaintiff' %}
+                    <span class="badge badge-stance stance-plaintiff">Stance: PLAINTIFF</span>
+                    {% elif point.stance == 'defendant' %}
+                    <span class="badge badge-stance stance-defendant">Stance: DEFENDANT</span>
+                    {% elif point.stance == 'amicus' %}
+                    <span class="badge badge-stance stance-amicus">Stance: AMICUS</span>
+                    {% else %}
+                    <span class="badge badge-stance stance-neutral">Stance: NEUTRAL</span>
+                    {% endif %}
+                </div>
+
+                <!-- Summary -->
+                <h3 class="point-summary">{{ point.summary }}</h3>
+
+                <!-- Supporting Quote -->
+                <div class="quote-box">
+                    <div class="quote-icon">💬</div>
+                    <div class="quote-content">
+                        <strong>Supporting Quote</strong>
+                        <p>"{{ point.supporting_quote }}"</p>
+                    </div>
+                </div>
+
+                <!-- Legal Concepts -->
+                {% if point.legal_concepts %}
+                <div class="legal-concepts">
+                    <strong>Legal Concepts:</strong>
+                    {% for concept in point.legal_concepts %}
+                    <span class="concept-tag">{{ concept }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Metrics Row -->
+                <div class="metrics-row">
+                    <div class="metric">
+                        <span class="metric-label">Importance</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: {{ (point.importance_score * 100)|round|int }}%"></div>
+                        </div>
+                        <span class="metric-value">{{ (point.importance_score * 100)|round|int }}%</span>
+                    </div>
+                    
+                    {% if point.page_number %}
+                    <div class="metric-info">
+                        <span class="metric-icon">📄</span>
+                        <span>Page {{ point.page_number }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if point.section_type %}
+                    <div class="metric-info">
+                        <span class="metric-icon">📑</span>
+                        <span>{{ point.section_type|title }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="{{ url_for('index') }}" class="btn btn-primary">← Analyze Another Document</a>
+        <button onclick="window.print()" class="btn btn-secondary">🖨️ Print Report</button>
+        <button onclick="exportToJSON()" class="btn btn-secondary">💾 Export JSON</button>
+    </div>
+</div>
+
+<script>
+    // Export to JSON
+    function exportToJSON() {
+        const data = {
+            case_name: "{{ result.case_name or 'Legal Brief' }}",
+            document_type: "{{ result.document_type or 'Unknown' }}",
+            total_pages: {{ result.total_pages }},
+            total_chunks: {{ result.total_chunks }},
+            processing_time: {{ result.processing_time }},
+            analysis_query: "{{ query or 'key legal arguments and important points' }}",
+            key_points: [
+                {% for point in result.key_points %}
+                {
+                    rank: {{ loop.index }},
+                    summary: {{ point.summary|tojson }},
+                    importance: "{{ point.importance }}",
+                    importance_score: {{ point.importance_score }},
+                    stance: "{{ point.stance }}",
+                    supporting_quote: {{ point.supporting_quote|tojson }},
+                    legal_concepts: {{ point.legal_concepts|tojson }},
+                    page_number: {{ point.page_number or 'null' }},
+                    section_type: {{ point.section_type|tojson if point.section_type else 'null' }}
+                }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ]
+        };
+        
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'legal_analysis_' + new Date().toISOString().slice(0,10) + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+</script>
+{% endblock %}

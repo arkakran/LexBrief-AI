@@ -1,6 +1,3 @@
-"""
-Legal Document Analyzer - Document-specific collections with cleanup
-"""
 import structlog
 from flask import Flask, render_template, request, redirect, url_for, flash
 from werkzeug.utils import secure_filename
@@ -186,4 +183,5 @@ def health():
     return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
 if __name__ == '__main__':
+
     app.run(host='0.0.0.0', port=5000, debug=True)
